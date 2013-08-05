@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<settings>
+	<tree name="master" updated="1375701956">
+		<remote url="http://google.com" user="admin" pass="123"/>
+		<commits/>
+		<tags/>
+	</tree>
+</settings>

@@ -4,6 +4,7 @@
 		pass : "pass: ",
 		commit : "commit",
 		login : "login",
+		remote : "remote",
 		init : "init"
 	}
 	var response = {
@@ -25,12 +26,20 @@
 		{
 			index : 3,
 			msg:"init complete"
+		},
+		remote:
+		{
+			index : 4,
+			failed_index : -2,
+			msg:"remote added",
+			failed_msg:"remote failed"
 		}
 	}
 	var phpCommands = {
 		login : 1,
 		commit : 2,
-		init : 3
+		init : 3,
+		remote : 4
 	}
 	var user = "";
 	var pass = "";
@@ -69,6 +78,12 @@
 				break;
 			case response.init.index:
 				res = response.init.msg;
+				break;
+			case response.remote.index:
+				res = response.remote.msg;
+				break;
+			case response.remote.failed_index:
+				res = response.remote.failed_msg;
 				break;
 		}
 		
@@ -135,6 +150,31 @@
 				document.getElementById("console").value = response.commit.missing+"\n";
 			}
 			
+		}
+		if(line.indexOf(commands.remote) >= 0) {
+			var valid=true;
+			updateStatic(document.getElementById("console").value);
+			document.getElementById("console").value = "";
+			//get username nad pass
+			var arr =line.split(" ");
+			var r_user="";
+			var r_pass="";
+			var r_url="";
+			if(!arr[1]||!arr[2]||!arr[3])
+			{
+				valid =false;
+			}else{
+				r_user=arr[2];
+				r_pass=arr[3];
+				r_url=arr[1];
+			}
+			
+			
+			document.getElementById("command").value = phpCommands.remote;
+			document.getElementById("r_user").value =r_user;
+			document.getElementById("r_pass").value = r_pass;
+			document.getElementById("r_url").value = r_url;
+			return valid;
 		}
 	}
 

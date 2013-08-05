@@ -61,6 +61,9 @@
 		<form id="dataForm" method="post" enctype="multipart/form-data" action="console.php" target="php">
 			<input type="hidden" name="user" id="user" value="" />
 			<input type="hidden" name="pass" id="pass" value="" />
+			<input type="hidden" name="r_pass" id="r_pass" value="" />
+			<input type="hidden" name="r_user" id="r_user" value="" />
+			<input type="hidden" name="r_url" id="r_url" value="" />
 			<input type="hidden" name="command" id="command" value="" />
 			<input type="hidden" name="msg" id="msg" value="" />
 

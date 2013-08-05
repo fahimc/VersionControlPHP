@@ -1,4 +1,5 @@
 <?php
+include_once 'lib/com/fahimchowdhury/server/FTPUploader.php';
 class VCS {
 	const SETTINGS_URL = "../.repo/settings.xml";
 	const COMMITS_URL = "../.repo/commits/";
@@ -29,6 +30,7 @@ class VCS {
 		} else {
 			$settings = $this -> settingsXML -> createElement("settings");
 			$tree = $this -> settingsXML -> createElement("tree");
+			$remote = $this -> settingsXML -> createElement("remote");
 
 			//create tree name
 			$att = $this -> settingsXML -> createAttribute("name");
@@ -43,6 +45,7 @@ class VCS {
 
 			$commit = $this -> settingsXML -> createElement("commits");
 			$tags = $this -> settingsXML -> createElement("tags");
+			$tree -> appendChild($remote);
 			$tree -> appendChild($commit);
 			$tree -> appendChild($tags);
 			$settings -> appendChild($tree);
@@ -55,6 +58,23 @@ class VCS {
 	private function createReadme() {
 		if (!file_exists(VCS::README_URL))
 			file_put_contents(VCS::README_URL, "");
+	}
+
+	public function remote($url, $user, $pass) {
+		$remoteNode = $this -> settingsXML -> getElementsByTagName("remote") -> item(0);
+		$att = $this -> settingsXML -> createAttribute("url");
+		$att -> value = $url;
+		$remoteNode -> appendChild($att);
+		
+		$useratt = $this -> settingsXML -> createAttribute("user");
+		$useratt -> value = $user;
+		$remoteNode -> appendChild($useratt);
+		
+		$passatt = $this -> settingsXML -> createAttribute("pass");
+		$passatt -> value = $pass;
+		$remoteNode -> appendChild($passatt);
+		
+		$this -> settingsXML -> save(VCS::SETTINGS_URL);
 	}
 
 	public function commit($msg) {
@@ -89,9 +109,7 @@ class VCS {
 		$changedList = array();
 		$commitsNode = $this -> settingsXML -> getElementsByTagName("commits") -> item(0);
 		$commits = $commitsNode -> getElementsByTagName("commit");
-		
 
-		
 		$index = 0;
 		$updated = false;
 		foreach ($commits as $commit) {
@@ -143,7 +161,7 @@ class VCS {
 		return true;
 	}
 
-	public function tag($name,$msg) {
+	public function tag($name, $msg) {
 		$tagsNode = $this -> settingsXML -> getElementsByTagName("tags") -> item(0);
 		//create a new commit item
 		$newTag = $this -> settingsXML -> createElement("tag");
@@ -151,7 +169,7 @@ class VCS {
 		$att = $this -> settingsXML -> createAttribute("timestamp");
 		$att -> value = $date -> getTimestamp();
 		$newTag -> appendChild($att);
-		
+
 		$att = $this -> settingsXML -> createAttribute("name");
 		$att -> value = $name;
 		$newTag -> appendChild($att);
@@ -162,14 +180,14 @@ class VCS {
 		$newTag -> appendChild($msgNode);
 
 		$tagsNode -> appendChild($newTag);
-		$this->addNewTag($newTag);
+		$this -> addNewTag($newTag);
 		$this -> settingsXML -> save(VCS::SETTINGS_URL);
 	}
 
 	public function addNewTag($node) {
 		$timestamp = $node -> getAttribute("timestamp");
 		$folderName = VCS::TAGS_URL . "tag-" . $timestamp;
-		$this -> recurse_copy(VCS::ROOT, $folderName,null);
+		$this -> recurse_copy(VCS::ROOT, $folderName, null);
 	}
 
 	private function recurse_copy($src, $dst, $node) {
@@ -222,6 +240,4 @@ class VCS {
 	}
 
 }
-
-
 ?>

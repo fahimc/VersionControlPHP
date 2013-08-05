@@ -5,12 +5,15 @@ Class Response {
 	const FAILED = -1;
 	const COMMITTED = 2;
 	const INIT_COMPLETE = 3;
+	const REMOTE_ADDED = 4;
+	const REMOTE_FAILED = -2;
 }
 
 Class RECEIVED {
 	const LOGIN = 1;
 	const COMMIT = 2;
 	const INIT = 3;
+	const REMOTE = 4;
 }
 
 Class Responder {
@@ -40,11 +43,17 @@ Class Responder {
 				case RECEIVED::INIT :
 					$this -> VCSinit();
 					break;
+				case RECEIVED::REMOTE :
+					
+					$this -> remote();
+					break;
 			}
 
-		}else{
+		} else {
 			$command = stripcslashes($_POST['command']);
-			if($command ==RECEIVED::INIT  )$this -> VCSinit();
+		
+			if ($command == RECEIVED::INIT)
+				$this -> VCSinit();
 		}
 	}
 
@@ -55,17 +64,33 @@ Class Responder {
 			$this -> send(Response::FAILED);
 		}
 	}
-	private function VCSinit()
-	{
+
+	private function remote() {
+		$u = stripcslashes($_POST['r_user']);
+		$p = stripcslashes($_POST['r_pass']);
+		$url = stripcslashes($_POST['r_url']);
+
+		if (isset($u) && isset($p) && isset($url)) {
+			$vcs = new VCS();
+			$vcs -> init();
+			$vcs -> remote($url, $u, $p);
+			$this -> send(Response::REMOTE_ADDED);
+		} else {
+			$this -> send(Response::REMOTE_FAILED);
+		}
+	}
+
+	private function VCSinit() {
 		$vcs = new VCS();
 		$vcs -> init();
 		$this -> send(Response::INIT_COMPLETE);
 	}
+
 	private function commit() {
 		$msg = stripcslashes($_POST['msg']);
 		$vcs = new VCS();
 		$vcs -> init();
-		$vcs -> commit( $msg);
+		$vcs -> commit($msg);
 		$this -> send(Response::COMMITTED);
 	}
 
